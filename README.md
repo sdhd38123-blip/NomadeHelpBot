@@ -103,7 +103,6 @@ python3 main.py
 <div align="center">
 
 ### ☕ Support Me!
-If you enjoy my work, consider buying me a coffee ❤️  
 
 <a href="https://files.catbox.moe/4elv8g.jpg" target="_blank">
   <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" height="45" width="190" alt="Buy Me a Coffee" />
