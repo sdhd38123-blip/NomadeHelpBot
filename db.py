@@ -1,5 +1,5 @@
 # ============================================================
-#Group Manager Bot
+# Group Manager Bot
 # Author: LearningBotsOfficial (https://github.com/LearningBotsOfficial) 
 # Support: https://t.me/LearningBotsCommunity
 # Channel: https://t.me/learning_bots
@@ -7,25 +7,18 @@
 # License: Open-source (keep credits, no resale)
 # ============================================================
 
+
 import motor.motor_asyncio
 from config import MONGO_URI, DB_NAME
 import logging
 
-# setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='[%(levelname)s] %(asctime)s - %(message)s'
-)
+client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
+db = client[DB_NAME]
 
-try:
-    client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_URI)
-    db = client[DB_NAME]
-    logging.info("✅ MongoDB connected successfully!")
-except Exception as e:
-    logging.error(f"❌ Failed to connect to MongoDB: {e}")
+logging.info("✅ MongoDB initialized")
 
 # ==========================================================
-# 🟢 WELCOME MESSAGE SYSTEM
+# 🟢 Welcome
 # ==========================================================
 
 async def set_welcome_message(chat_id, text: str):
@@ -48,12 +41,11 @@ async def set_welcome_status(chat_id, status: bool):
 
 async def get_welcome_status(chat_id) -> bool:
     data = await db.welcome.find_one({"chat_id": chat_id})
-    if not data:  # default ON
-        return True
-    return bool(data.get("enabled", True))
+    return bool(data.get("enabled", True)) if data else True
+
 
 # ==========================================================
-# 🔒 LOCK SYSTEM
+# 🔒 Lock
 # ==========================================================
 
 async def set_lock(chat_id, lock_type, status: bool):
@@ -67,8 +59,9 @@ async def get_locks(chat_id):
     data = await db.locks.find_one({"chat_id": chat_id})
     return data.get("locks", {}) if data else {}
 
+
 # ==========================================================
-# ⚠️ WARN SYSTEM
+# ⚠️ Warn
 # ==========================================================
 
 async def add_warn(chat_id: int, user_id: int) -> int:
@@ -93,8 +86,9 @@ async def reset_warns(chat_id: int, user_id: int):
         upsert=True
     )
 
+
 # ==========================================================
-# 🧹 CLEANUP UTILS (Optional)
+# 🧹 Cleanup
 # ==========================================================
 
 async def clear_group_data(chat_id: int):
@@ -104,8 +98,9 @@ async def clear_group_data(chat_id: int):
 
 
 # ==========================================================
-# 👤 USER SYSTEM (for broadcast)
+# 👤 User
 # ==========================================================
+
 async def add_user(user_id, first_name):
     await db.users.update_one(
         {"user_id": user_id},
@@ -114,12 +109,8 @@ async def add_user(user_id, first_name):
     )
 
 async def get_all_users():
-    cursor = db.users.find({}, {"_id": 0, "user_id": 1})
     users = []
-    async for document in cursor:
-        # Make sure the document has 'user_id'
+    async for document in db.users.find({}, {"_id": 0, "user_id": 1}):
         if "user_id" in document:
             users.append(document["user_id"])
     return users
-
-
